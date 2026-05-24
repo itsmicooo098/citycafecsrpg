@@ -709,8 +709,6 @@ html,body{
                 </div>
               </div>
               <div class="order-totals">
-                <div class="totals-row"><span>Zwischensumme</span><span id="subtotal">$0.00</span></div>
-                <div class="totals-row"><span>MwSt. (8%)</span><span id="tax">$0.00</span></div>
                 <div class="totals-row final"><span>Total</span><span id="total">$0.00</span></div>
               </div>
               <div class="change-calc">
@@ -901,7 +899,7 @@ function getSub(){ return Object.keys(order).map(Number).reduce((s,id)=>s+(MENU.
 
 function calcChange(){
   const cash=parseFloat(document.getElementById('cashInput').value);
-  const tot=getSub()*1.08;
+  const tot=getSub();
   const el=document.getElementById('changeAmount');
   if(isNaN(cash)||cash===0){el.textContent='—';el.className='change-amount';return;}
   const ch=cash-tot;
@@ -926,9 +924,7 @@ function renderOrder(){
       c.appendChild(ln);
     });
   }
-  const sub=getSub(),tax=sub*0.08,tot=sub+tax;
-  document.getElementById('subtotal').textContent=`$${sub.toFixed(2)}`;
-  document.getElementById('tax').textContent=`$${tax.toFixed(2)}`;
+  const tot=getSub();
   document.getElementById('total').textContent=`$${tot.toFixed(2)}`;
   const btn=document.getElementById('checkoutBtn');
   btn.disabled=!ids.length;
@@ -947,7 +943,7 @@ document.getElementById('clearBtn').onclick=()=>{
 document.getElementById('checkoutBtn').onclick=()=>{
   const tot=document.getElementById('total').textContent;
   const cash=parseFloat(document.getElementById('cashInput').value);
-  const totalN=getSub()*1.08;
+  const totalN=getSub();
   const chg=!isNaN(cash)&&cash>0?`\nChange: $${Math.max(0,cash-totalN).toFixed(2)}`:'';
   alert(`Bestellung abgeschlossen!\n\nGesamt: ${tot}${chg}\n\nDanke schön!`);
   order={};
