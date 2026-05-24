@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Café — Point of Sale</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  height:100%;
+  background:#3a3a3c;
+  font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* ═══════════════════════════════
+   TABLET OUTER SHELL
+═══════════════════════════════ */
+
+
+/* ── PHYSICAL FRAME ── */
+
+
+/* top notch */
+
+/* ── TABLET LAYOUT ── */
+.tablet-outer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100vw;
+  height:100vh;
+  padding:20px;
+}
+
+.tablet-with-buttons{
+  position:relative;
+  /* frame size + button protrusion on each side */
+  width:min(1220px, calc(100vw - 40px));
+  height:min(820px, calc(100vh - 40px));
+  flex-shrink:0;
+  overflow:visible;
+}
+
+.tablet-frame{
+  position:absolute;
+  inset:0;
+  background:#1c1c1e;
+  border-radius:clamp(18px,3vw,32px);
+  padding:clamp(10px,1.5vw,18px);
+  box-shadow:
+    0 0 0 1px #3f3f41,
+    0 0 0 3px #111113,
+    0 40px 90px rgba(0,0,0,0.6),
+    inset 0 1px 0 #3f3f41;
+  overflow:hidden;
+}
+
+/* Left side: volume pills */
+.side-left{
+  position:absolute;
+  left:-7px;
+  top:20%;
+  display:flex;flex-direction:column;gap:9px;
+  pointer-events:none;
+  z-index:10;
+}
+
+.vol-pill{
+  width:6px;
+  height:clamp(28px,3.8vh,42px);
+  background:#141416;
+  border-radius:3px 0 0 3px;
+  box-shadow:-3px 0 8px rgba(0,0,0,0.6), inset -1px 0 0 #0a0a0a, inset 0 1px 0 #2a2a2a;
+}
+
+/* Right side: power + lock pills */
+.side-right{
+  position:absolute;
+  right:-7px;
+  top:16%;
+  display:flex;flex-direction:column;gap:9px;
+  z-index:10;
+}
+
+.power-pill{
+  width:6px;
+  height:clamp(40px,5.5vh,58px);
+  background:#141416;
+  border-radius:0 3px 3px 0;
+  border:none;cursor:pointer;
+  box-shadow:3px 0 8px rgba(0,0,0,0.6), inset 1px 0 0 #0a0a0a, inset 0 1px 0 #2a2a2a;
+  transition:background 0.15s, width 0.12s;
+  display:block;
+}
+
+.lock-pill{
+  display:block;
+  width:6px;
+  height:clamp(28px,3.8vh,40px);
+  background:#141416;
+  border-radius:0 3px 3px 0;
+  border:none;cursor:pointer;
+  box-shadow:3px 0 8px rgba(0,0,0,0.6), inset 1px 0 0 #0a0a0a, inset 0 1px 0 #2a2a2a;
+  transition:background 0.15s, width 0.12s;
+}
+
+.power-pill:hover{background:#2e2e2e;width:9px;}
+.power-pill:active{background:#444;}
+.lock-pill:hover{background:#2e2e2e;width:9px;}
+.lock-pill:active{background:#444;}
+
+.tablet-notch{
+  position:absolute;
+  top:clamp(5px,0.8vw,10px);
+  left:50%;transform:translateX(-50%);
+  width:clamp(40px,5vw,70px);
+  height:clamp(3px,0.5vw,5px);
+  background:#2c2c2e;border-radius:3px;
+  pointer-events:none;
+}
+
+/* ── PHYSICAL SIDE BUTTONS (attached to frame) ── */
+
+/* Left: volume up + volume down */
+
+
+
+/* Right: power button (interactive) */
+
+
+
+
+
+
+
+
+
+
+/* ── SCREEN AREA ── */
+.tablet-screen-wrap{
+  width:100%;height:100%;
+  border-radius:clamp(10px,1.8vw,20px);
+  overflow:hidden;position:relative;
+}
+
+/* Screen-off overlay */
+.screen-off{
+  position:absolute;inset:0;
+  background:#000;
+  z-index:300;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.65s cubic-bezier(.4,0,.2,1);
+  border-radius:inherit;
+  display:flex;align-items:center;justify-content:center;
+}
+.screen-off.active{opacity:1;pointer-events:all;}
+.off-glow{display:none;}
+.screen-off.active .off-glow{display:none;}
+
+/* ══════════════════════════════
+   SCREEN INTERIOR
+══════════════════════════════ */
+.screen{
+  width:100%;height:100%;
+  background:#0a0a0a;
+  display:flex;
+}
+
+/* ── SIDE NAV ── */
+.side-nav{
+  width:52px;
+  background:#050505;
+  border-right:1px solid #1a1a1a;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:14px 0 10px;
+  gap:4px;
+  flex-shrink:0;
+  z-index:10;
+}
+.nav-logo{
+  font-size:20px;margin-bottom:10px;
+  width:36px;height:36px;
+  background:#141414;border:1px solid #1e1e1e;
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.nav-divider{
+  width:26px;height:1px;
+  background:#1e1e1e;
+  margin:4px 0;flex-shrink:0;
+}
+.nav-btn{
+  width:36px;height:36px;
+  border-radius:9px;border:none;
+  background:transparent;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#444;
+  transition:background 0.18s, color 0.18s;
+  flex-shrink:0;
+  position:relative;
+}
+.nav-btn:hover{background:#161616;color:#888;}
+.nav-btn.active{background:#1e1e1e;color:#f2f2f2;}
+.nav-btn.active::before{
+  content:'';
+  position:absolute;
+  left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;
+  background:#f2f2f2;
+  border-radius:0 2px 2px 0;
+}
+.nav-spacer{flex:1;}
+
+/* ── CONTENT AREA (tabs) ── */
+.content-area{
+  flex:1;min-width:0;
+  position:relative;
+  overflow:hidden;
+}
+.tab-panel{
+  position:absolute;inset:0;
+  display:flex;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(8px);
+  transition:opacity 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.tab-panel.active{
+  opacity:1;pointer-events:all;
+  transform:translateY(0);
+}
+
+/* ════════════════════════════
+   POS TAB
+════════════════════════════ */
+#tab-pos{display:flex;}
+
+.pos-left{
+  display:flex;flex-direction:column;
+  background:#0a0a0a;overflow:hidden;
+  flex:1;min-width:0;
+}
+.pos-header{
+  padding:clamp(12px,1.5vw,18px) clamp(14px,2vw,24px) clamp(10px,1.2vw,14px);
+  border-bottom:1px solid #1a1a1a;
+  flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+}
+.pos-header h1{font-size:clamp(14px,1.5vw,19px);font-weight:700;color:#f2f2f2;letter-spacing:-0.3px;}
+.pos-header p{font-size:clamp(9px,0.85vw,11px);color:#484848;margin-top:1px;}
+
+.search-wrap{
+  padding:clamp(7px,0.85vw,11px) clamp(14px,2vw,24px);
+  border-bottom:1px solid #1a1a1a;flex-shrink:0;
+}
+.search-inner{position:relative;display:flex;align-items:center;}
+.search-icon{position:absolute;left:10px;color:#3a3a3a;pointer-events:none;}
+.search-input{
+  width:100%;
+  padding:clamp(6px,0.7vw,8px) 12px clamp(6px,0.7vw,8px) 30px;
+  background:#141414;border:1px solid #1e1e1e;border-radius:8px;
+  color:#f2f2f2;font-size:clamp(10px,0.95vw,12px);font-family:inherit;
+  outline:none;transition:border-color 0.2s;
+}
+.search-input::placeholder{color:#303030;}
+.search-input:focus{border-color:#333;}
+.search-clear{
+  position:absolute;right:10px;background:none;border:none;
+  color:#3a3a3a;cursor:pointer;font-size:16px;line-height:1;
+  display:none;padding:0;transition:color 0.15s;
+}
+.search-clear:hover{color:#f2f2f2;}
+
+.category-bar{
+  display:flex;gap:5px;
+  padding:clamp(7px,0.85vw,11px) clamp(14px,2vw,24px);
+  border-bottom:1px solid #1a1a1a;flex-shrink:0;
+  overflow-x:auto;scrollbar-width:none;
+}
+.category-bar::-webkit-scrollbar{display:none;}
+.cat-btn{
+  display:flex;align-items:center;gap:4px;
+  padding:clamp(4px,0.45vw,6px) clamp(9px,1vw,14px);
+  border-radius:999px;border:1px solid #1e1e1e;
+  background:transparent;color:#4a4a4a;
+  font-size:clamp(9px,0.85vw,11px);font-weight:500;
+  font-family:inherit;cursor:pointer;white-space:nowrap;
+  transition:all 0.2s cubic-bezier(.4,0,.2,1);
+}
+.cat-btn:hover{border-color:#484848;color:#b0b0b0;}
+.cat-btn.active{background:#f2f2f2;border-color:#f2f2f2;color:#000;}
+
+.items-grid-wrap{
+  flex:1;overflow-y:auto;
+  padding:clamp(10px,1.2vw,16px) clamp(14px,2vw,24px) 16px;
+  scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;
+}
+.items-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(clamp(85px,9.5vw,125px),1fr));
+  gap:clamp(7px,0.85vw,11px);
+}
+.no-results{grid-column:1/-1;text-align:center;padding:40px 0;color:#2e2e2e;font-size:12px;}
+
+.item-card{
+  background:#141414;border:1px solid #1e1e1e;border-radius:10px;
+  padding:clamp(9px,1vw,13px) clamp(8px,0.85vw,11px) clamp(11px,1.1vw,15px);
+  cursor:pointer;
+  transition:background 0.18s, border-color 0.18s, transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s;
+  display:flex;flex-direction:column;gap:5px;user-select:none;
+}
+.item-card:hover{background:#1c1c1c;border-color:#2e2e2e;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.55);}
+.item-card:active{transform:translateY(0);box-shadow:none;}
+.item-card.pop{animation:pop 0.26s cubic-bezier(.4,0,.2,1);}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(0.92);}70%{transform:scale(1.04);}100%{transform:scale(1);}}
+.item-emoji{font-size:clamp(13px,1.5vw,20px);line-height:1;}
+.item-name{font-size:clamp(9px,0.9vw,11px);font-weight:600;color:#c8c8c8;line-height:1.35;min-height:clamp(20px,2.4vw,30px);}
+.item-price{font-size:clamp(12px,1.25vw,15px);font-weight:700;color:#f2f2f2;margin-top:auto;}
+
+/* ── ORDER DRAWER ── */
+.pos-right{
+  background:#050505;border-left:1px solid #161616;
+  display:flex;flex-direction:column;
+  width:0;overflow:hidden;
+  transition:width 0.48s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+}
+.pos-right.open{width:clamp(230px,26vw,295px);}
+
+.order-header{
+  padding:clamp(12px,1.5vw,18px) clamp(12px,1.4vw,16px) clamp(10px,1.1vw,13px);
+  border-bottom:1px solid #161616;
+  display:flex;align-items:center;gap:7px;flex-shrink:0;
+  opacity:0;transform:translateX(18px);
+  transition:opacity 0.3s 0.18s, transform 0.3s 0.18s cubic-bezier(.4,0,.2,1);
+}
+.pos-right.open .order-header{opacity:1;transform:translateX(0);}
+.order-header svg{color:#3a3a3a;flex-shrink:0;}
+.order-header h2{font-size:clamp(12px,1.2vw,15px);font-weight:700;color:#f2f2f2;white-space:nowrap;}
+
+
+
+.order-badge{
+  margin-left:auto;background:#f2f2f2;color:#000;
+  font-size:9px;font-weight:800;
+  width:17px;height:17px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0);
+  transition:opacity 0.2s, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+.order-badge.show{opacity:1;transform:scale(1);}
+
+.order-items{
+  flex:1;overflow-y:auto;
+  padding:clamp(8px,0.95vw,11px) clamp(12px,1.4vw,16px);
+  scrollbar-width:thin;scrollbar-color:#222 transparent;
+  opacity:0;transition:opacity 0.3s 0.22s;
+}
+.pos-right.open .order-items{opacity:1;}
+.order-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#242424;}
+.order-empty p{font-size:11px;}
+
+.order-line{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 0;border-bottom:1px solid #111;
+  animation:lineIn 0.22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes lineIn{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
+.order-line:last-child{border-bottom:none;}
+.order-line-name{flex:1;font-size:clamp(9px,0.88vw,11px);font-weight:500;color:#a8a8a8;line-height:1.3;}
+.qty-controls{display:flex;align-items:center;gap:3px;}
+.qty-btn{
+  width:clamp(17px,1.9vw,22px);height:clamp(17px,1.9vw,22px);
+  border-radius:5px;border:1px solid #1e1e1e;background:#141414;
+  color:#585858;font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:inherit;line-height:1;
+  transition:border-color 0.12s, color 0.12s, background 0.12s;
+}
+.qty-btn:hover{border-color:#e0e0e0;color:#f2f2f2;background:#1c1c1c;}
+.qty-num{font-size:10px;font-weight:700;min-width:13px;text-align:center;color:#f2f2f2;}
+.order-line-price{font-size:10px;font-weight:700;color:#f2f2f2;min-width:34px;text-align:right;}
+
+.order-totals{
+  padding:9px clamp(12px,1.4vw,16px);
+  border-top:1px solid #161616;flex-shrink:0;
+  opacity:0;transform:translateY(9px);
+  transition:opacity 0.3s 0.27s, transform 0.3s 0.27s cubic-bezier(.4,0,.2,1);
+}
+.pos-right.open .order-totals{opacity:1;transform:translateY(0);}
+.totals-row{display:flex;justify-content:space-between;font-size:clamp(9px,0.9vw,11px);color:#404040;padding:2px 0;}
+.totals-row.final{font-size:clamp(13px,1.35vw,16px);font-weight:700;color:#f2f2f2;padding-top:7px;margin-top:4px;border-top:1px solid #1a1a1a;}
+
+.change-calc{
+  padding:7px clamp(12px,1.4vw,16px);
+  border-top:1px solid #161616;flex-shrink:0;
+  opacity:0;transform:translateY(9px);
+  transition:opacity 0.3s 0.32s, transform 0.3s 0.32s cubic-bezier(.4,0,.2,1);
+}
+.pos-right.open .change-calc{opacity:1;transform:translateY(0);}
+.change-label{font-size:9px;font-weight:600;color:#303030;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.change-row{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.change-pre{font-size:11px;font-weight:700;color:#404040;flex-shrink:0;}
+.change-input{
+  flex:1;padding:5px 8px;background:#141414;border:1px solid #1a1a1a;border-radius:7px;
+  color:#f2f2f2;font-size:11px;font-weight:600;font-family:inherit;
+  outline:none;transition:border-color 0.18s;
+}
+.change-input::placeholder{color:#262626;}
+.change-input:focus{border-color:#2e2e2e;}
+.change-result-box{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 8px;background:#141414;border:1px solid #1a1a1a;border-radius:7px;
+}
+.change-result-label{font-size:9px;color:#404040;}
+.change-amount{font-size:clamp(12px,1.3vw,15px);font-weight:700;color:#f2f2f2;}
+.change-amount.low{color:#2e2e2e;}
+
+.order-actions{
+  padding:7px clamp(12px,1.4vw,16px) clamp(9px,1.1vw,13px);
+  display:flex;flex-direction:column;gap:4px;flex-shrink:0;
+  opacity:0;transform:translateY(9px);
+  transition:opacity 0.3s 0.37s, transform 0.3s 0.37s cubic-bezier(.4,0,.2,1);
+}
+.pos-right.open .order-actions{opacity:1;transform:translateY(0);}
+.btn-charge{
+  width:100%;padding:clamp(8px,0.95vw,12px);
+  background:#f2f2f2;border:none;border-radius:8px;
+  color:#000;font-size:clamp(10px,1.05vw,12px);font-weight:700;
+  font-family:inherit;cursor:pointer;white-space:nowrap;
+  transition:background 0.18s, transform 0.12s;
+}
+.btn-charge:hover{background:#d8d8d8;}
+.btn-charge:active{transform:scale(0.97);}
+.btn-charge:disabled{background:#141414;color:#252525;cursor:not-allowed;transform:none;border:1px solid #1a1a1a;}
+.btn-clear{
+  width:100%;padding:clamp(6px,0.7vw,8px);
+  background:transparent;border:1px solid #1a1a1a;border-radius:8px;
+  color:#303030;font-size:clamp(9px,0.85vw,10px);font-weight:500;
+  font-family:inherit;cursor:pointer;transition:border-color 0.18s, color 0.18s;
+}
+.btn-clear:hover{border-color:#404040;color:#787878;}
+
+/* ════════════════════════════
+   TASKS TAB
+════════════════════════════ */
+#tab-tasks{
+  flex-direction:column;
+  background:#0a0a0a;
+  overflow:hidden;
+}
+
+.tasks-header{
+  padding:clamp(14px,1.7vw,22px) clamp(18px,2.2vw,28px) clamp(12px,1.4vw,16px);
+  border-bottom:1px solid #1a1a1a;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.tasks-header-left h1{font-size:clamp(15px,1.7vw,21px);font-weight:700;color:#f2f2f2;letter-spacing:-0.3px;}
+.tasks-header-left p{font-size:clamp(9px,0.88vw,11px);color:#484848;margin-top:2px;}
+.btn-new-task{
+  display:flex;align-items:center;gap:6px;
+  padding:clamp(7px,0.8vw,10px) clamp(12px,1.3vw,16px);
+  background:#f2f2f2;border:none;border-radius:8px;
+  color:#000;font-size:clamp(10px,1vw,12px);font-weight:700;
+  font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:background 0.18s, transform 0.12s;
+}
+.btn-new-task:hover{background:#d8d8d8;}
+.btn-new-task:active{transform:scale(0.97);}
+
+/* Task add form */
+.task-form{
+  padding:0 clamp(18px,2.2vw,28px);
+  max-height:0;overflow:hidden;
+  transition:max-height 0.35s cubic-bezier(.4,0,.2,1), padding 0.3s;
+  flex-shrink:0;
+}
+.task-form.open{
+  max-height:90px;
+  padding:clamp(10px,1.2vw,14px) clamp(18px,2.2vw,28px);
+  border-bottom:1px solid #1a1a1a;
+}
+.task-form-inner{
+  display:flex;gap:8px;align-items:center;
+}
+.task-input{
+  flex:1;
+  padding:clamp(8px,0.9vw,11px) clamp(12px,1.3vw,14px);
+  background:#141414;border:1px solid #1e1e1e;border-radius:8px;
+  color:#f2f2f2;font-size:clamp(11px,1.05vw,13px);font-family:inherit;
+  outline:none;transition:border-color 0.18s;
+}
+.task-input::placeholder{color:#2e2e2e;}
+.task-input:focus{border-color:#383838;}
+.btn-add-task{
+  padding:clamp(8px,0.9vw,11px) clamp(12px,1.3vw,16px);
+  background:#f2f2f2;border:none;border-radius:8px;
+  color:#000;font-size:clamp(10px,1vw,12px);font-weight:700;
+  font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:background 0.18s;
+}
+.btn-add-task:hover{background:#d8d8d8;}
+.btn-cancel-task{
+  padding:clamp(8px,0.9vw,11px) clamp(10px,1.1vw,13px);
+  background:transparent;border:1px solid #1e1e1e;border-radius:8px;
+  color:#484848;font-size:clamp(10px,1vw,12px);font-weight:500;
+  font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:border-color 0.18s, color 0.18s;
+}
+.btn-cancel-task:hover{border-color:#484848;color:#888;}
+
+/* Task stats bar */
+.tasks-stats{
+  display:flex;align-items:center;gap:16px;
+  padding:clamp(8px,0.95vw,11px) clamp(18px,2.2vw,28px);
+  border-bottom:1px solid #1a1a1a;flex-shrink:0;
+}
+.stat-pill{
+  display:flex;align-items:center;gap:5px;
+  font-size:clamp(9px,0.85vw,11px);color:#484848;
+}
+.stat-dot{width:6px;height:6px;border-radius:50%;}
+.stat-dot.todo{background:#484848;}
+.stat-dot.done{background:#787878;}
+.stat-count{font-weight:700;color:#787878;}
+.stats-note{
+  margin-left:auto;
+  font-size:clamp(8px,0.78vw,10px);
+  color:#2a2a2a;
+  font-style:italic;
+}
+
+/* Task list */
+.task-list-wrap{
+  flex:1;overflow-y:auto;
+  padding:clamp(10px,1.2vw,16px) clamp(18px,2.2vw,28px);
+  scrollbar-width:thin;scrollbar-color:#242424 transparent;
+}
+
+.tasks-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:10px;color:#242424;text-align:center;
+}
+.tasks-empty svg{opacity:0.25;}
+.tasks-empty p{font-size:12px;}
+.tasks-empty span{font-size:10px;color:#1e1e1e;}
+
+.task-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:clamp(10px,1.2vw,14px) clamp(12px,1.4vw,16px);
+  background:#111;
+  border:1px solid #1a1a1a;
+  border-radius:10px;
+  margin-bottom:8px;
+  animation:taskIn 0.28s cubic-bezier(.4,0,.2,1);
+  transition:opacity 0.2s, transform 0.2s, border-color 0.18s;
+}
+.task-item:hover{border-color:#242424;}
+.task-item.done-state{opacity:0.45;}
+@keyframes taskIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.task-item.removing{animation:taskOut 0.22s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes taskOut{to{opacity:0;transform:translateX(12px) scale(0.96);}}
+
+.task-check{
+  width:clamp(16px,1.8vw,20px);height:clamp(16px,1.8vw,20px);
+  border:1.5px solid #2a2a2a;border-radius:5px;
+  background:transparent;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+  transition:background 0.18s, border-color 0.18s;
+}
+.task-check:hover{border-color:#585858;}
+.task-check.checked{background:#f2f2f2;border-color:#f2f2f2;}
+.task-check.checked svg{display:block;}
+.task-check svg{display:none;flex-shrink:0;}
+
+.task-text-wrap{flex:1;min-width:0;}
+.task-text{
+  font-size:clamp(11px,1.05vw,13px);font-weight:500;color:#c8c8c8;
+  line-height:1.45;word-break:break-word;
+  transition:color 0.2s, text-decoration 0.2s;
+}
+.task-item.done-state .task-text{
+  text-decoration:line-through;color:#383838;
+}
+.task-meta{font-size:9px;color:#2e2e2e;margin-top:3px;}
+
+.task-actions{display:flex;gap:4px;flex-shrink:0;margin-left:auto;}
+.task-action-btn{
+  width:clamp(22px,2.4vw,28px);height:clamp(22px,2.4vw,28px);
+  border-radius:6px;border:1px solid #1a1a1a;background:transparent;
+  color:#383838;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color 0.15s, color 0.15s, background 0.15s;
+}
+.task-action-btn:hover{border-color:#383838;color:#888;background:#161616;}
+.task-action-btn.del:hover{border-color:#3a2020;color:#884444;background:#1a1010;}
+</style>
+</head>
+<body>
+<div class="tablet-outer">
+  <div class="tablet-with-buttons">
+
+  <!-- Left volume buttons (outside frame) -->
+  <div class="side-left">
+    <div class="vol-pill"></div>
+    <div class="vol-pill"></div>
+  </div>
+
+  <!-- Right side buttons (outside frame) -->
+  <div class="side-right">
+    <button class="power-pill" id="powerBtn" title="Strom"></button>
+    <button class="lock-pill" id="lockBtn" title="Bestellung schließen" onclick="closeOrder()"></button>
+  </div>
+
+  <!-- ── TABLET FRAME ── -->
+  <div class="tablet-frame">
+    <div class="tablet-notch"></div>
+
+    <!-- Screen -->
+    <div class="tablet-screen-wrap">
+      <div class="screen-off" id="screenOff">
+        <div class="off-glow"></div>
+      </div>
+
+      <div class="screen">
+
+        <!-- ── SIDE NAV ── -->
+        <nav class="side-nav">
+          <div class="nav-logo">☕</div>
+          <div class="nav-divider"></div>
+
+          <!-- POS tab -->
+          <button class="nav-btn active" id="nav-pos" title="Kasse" onclick="switchTab('pos')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </button>
+
+          <!-- Tasks tab -->
+          <button class="nav-btn" id="nav-tasks" title="Tagesaufgaben" onclick="switchTab('tasks')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </button>
+
+          <div class="nav-spacer"></div>
+        </nav>
+
+        <!-- ── CONTENT ── -->
+        <div class="content-area">
+
+          <!-- POS TAB -->
+          <div class="tab-panel active" id="tab-pos">
+            <div class="pos-left">
+              <div class="pos-header">
+                <div>
+                  <h1>Point of Sale</h1>
+                  <p>Tap an item to add to order</p>
+                </div>
+              </div>
+
+              <div class="search-wrap">
+                <div class="search-inner">
+                  <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input class="search-input" id="searchInput" type="text" placeholder="Artikel suchen...">
+                  <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+                </div>
+              </div>
+
+              <div class="category-bar" id="categoryBar"></div>
+
+              <div class="items-grid-wrap">
+                <div class="items-grid" id="itemsGrid"></div>
+              </div>
+            </div>
+
+            <!-- ORDER DRAWER -->
+            <div class="pos-right" id="posRight">
+              <div class="order-header">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="2"/>
+                  <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
+                </svg>
+                <h2>Aktuelle Bestellung</h2>
+                <span class="order-badge" id="orderBadge">0</span>
+              </div>
+              <div class="order-items" id="orderItems">
+                <div class="order-empty">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="2"/>
+                  </svg>
+                  <p>Noch keine Artikel</p>
+                </div>
+              </div>
+              <div class="order-totals">
+                <div class="totals-row"><span>Zwischensumme</span><span id="subtotal">$0.00</span></div>
+                <div class="totals-row"><span>MwSt. (8%)</span><span id="tax">$0.00</span></div>
+                <div class="totals-row final"><span>Total</span><span id="total">$0.00</span></div>
+              </div>
+              <div class="change-calc">
+                <div class="change-label">Wechselgeldrechner</div>
+                <div class="change-row">
+                  <span class="change-pre">$</span>
+                  <input class="change-input" id="cashInput" type="number" min="0" step="0.01" placeholder="Barbetrag" oninput="calcChange()">
+                </div>
+                <div class="change-result-box">
+                  <span class="change-result-label">Wechselgeld</span>
+                  <span class="change-amount" id="changeAmount">—</span>
+                </div>
+              </div>
+              <div class="order-actions">
+                <button class="btn-charge" id="checkoutBtn" disabled>Zahlen: $0.00</button>
+                <button class="btn-clear" id="clearBtn">Bestellung löschen</button>
+              </div>
+            </div>
+          </div><!-- /tab-pos -->
+
+          <!-- TASKS TAB -->
+          <div class="tab-panel" id="tab-tasks">
+            <div class="tasks-header">
+              <div class="tasks-header-left">
+                <h1>Tagesaufgaben</h1>
+                <p>Tagesnotizen — werden beim Neuladen gelöscht</p>
+              </div>
+              <button class="btn-new-task" id="btnNewTask" onclick="toggleTaskForm()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Task
+              </button>
+            </div>
+
+            <div class="task-form" id="taskForm">
+              <div class="task-form-inner">
+                <input class="task-input" id="taskInput" type="text" placeholder="Was muss heute erledigt werden?" maxlength="200">
+                <button class="btn-add-task" onclick="addTask()">Hinzufügen</button>
+                <button class="btn-cancel-task" onclick="toggleTaskForm()">Abbrechen</button>
+              </div>
+            </div>
+
+            <div class="tasks-stats" id="tasksStats">
+              <div class="stat-pill">
+                <div class="stat-dot todo"></div>
+                <span id="statTodo">0</span> <span style="color:#2a2a2a">to do</span>
+              </div>
+              <div class="stat-pill">
+                <div class="stat-dot done"></div>
+                <span id="statDone">0</span> <span style="color:#2a2a2a">done</span>
+              </div>
+              <span class="stats-note">⚠ Nicht gespeichert — verschwindet beim Neu laden</span>
+            </div>
+
+            <div class="task-list-wrap" id="taskListWrap">
+              <div class="tasks-empty" id="tasksEmpty">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 11l3 3L22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <p>Noch keine Aufgaben</p>
+                <span>"Neue Aufgabe" drücken um Aufgaben einzutragen</span>
+              </div>
+              <div id="taskList"></div>
+            </div>
+          </div><!-- /tab-tasks -->
+
+        </div><!-- /content-area -->
+      </div><!-- /screen -->
+    </div><!-- /screen-wrap -->
+  </div><!-- /tablet-frame -->
+  </div><!-- /tablet-with-buttons -->
+</div><!-- /tablet-outer -->
+
+<script>
+/* ══════════════════════
+   POWER BUTTON
+══════════════════════ */
+let screenOn = true;
+document.getElementById('powerBtn').addEventListener('click', () => {
+  screenOn = !screenOn;
+  document.getElementById('screenOff').classList.toggle('active', !screenOn);
+});
+
+/* ══════════════════════
+   TAB SWITCHING
+══════════════════════ */
+function switchTab(tab) {
+  ['pos','tasks'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('nav-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+/* ══════════════════════
+   POS LOGIC
+══════════════════════ */
+const MENU = [
+  {id:1,  cat:"Heißgetränke",   name:"Espresso",             price:2.50, emoji:"☕"},
+  {id:2,  cat:"Heißgetränke",   name:"Kaffee",               price:2.00, emoji:"☕"},
+  {id:3,  cat:"Heißgetränke",   name:"Cappuccino",           price:3.50, emoji:"☕"},
+  {id:4,  cat:"Heißgetränke",   name:"Latte Macchiato",      price:4.00, emoji:"🥛"},
+  {id:5,  cat:"Heißgetränke",   name:"Heiße Schokolade",     price:3.50, emoji:"🍫"},
+  {id:6,  cat:"Heißgetränke",   name:"Tee",                  price:2.50, emoji:"🍵"},
+  {id:7,  cat:"Kaltgetränke",   name:"Eiskaffee",            price:4.00, emoji:"🧊"},
+  {id:8,  cat:"Kaltgetränke",   name:"Eistee",               price:3.00, emoji:"🧃"},
+  {id:9,  cat:"Kaltgetränke",   name:"Smoothies (Frucht)",   price:4.50, emoji:"🥤"},
+  {id:10, cat:"Kaltgetränke",   name:"Softdrinks",           price:2.50, emoji:"🥤"},
+  {id:11, cat:"Kaltgetränke",   name:"Wasser",               price:1.50, emoji:"💧"},
+  {id:12, cat:"Snacks & Gebäck",name:"Donuts",               price:2.00, emoji:"🍩"},
+  {id:13, cat:"Snacks & Gebäck",name:"Croissants",           price:2.50, emoji:"🥐"},
+  {id:14, cat:"Snacks & Gebäck",name:"Muffins / Cupcakes",   price:3.00, emoji:"🧁"},
+  {id:15, cat:"Snacks & Gebäck",name:"Kuchen & Torten",      price:3.50, emoji:"🍰"},
+  {id:16, cat:"Snacks & Gebäck",name:"Belegte Brötchen",     price:4.00, emoji:"🥪"},
+  {id:17, cat:"Snacks & Gebäck",name:"Sandwiches / Wraps",   price:5.00, emoji:"🌯"},
+  {id:18, cat:"Snacks & Gebäck",name:"Salate",               price:5.50, emoji:"🥗"},
+]
+const CATS = ["All","Heißgetränke","Kaltgetränke","Snacks & Gebäck"];
+const CAT_EMOJI = {All:"🍽️","Heißgetränke":"☕","Kaltgetränke":"🧊","Snacks & Gebäck":"🥐"};
+
+let activeCat = "All", searchQ = "", order = {};
+
+const catBar = document.getElementById('categoryBar');
+CATS.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn' + (cat===activeCat?' active':'');
+  btn.innerHTML = `<span>${CAT_EMOJI[cat]}</span>${cat}`;
+  btn.onclick = () => {
+    activeCat = cat;
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderItems();
+  };
+  catBar.appendChild(btn);
+});
+
+document.getElementById('searchInput').addEventListener('input', function(){
+  searchQ = this.value.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = searchQ ? 'block':'none';
+  renderItems();
+});
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  searchQ='';
+  document.getElementById('searchClear').style.display='none';
+  renderItems();
+}
+
+function renderItems(){
+  const grid = document.getElementById('itemsGrid');
+  grid.innerHTML='';
+  let items = activeCat==='All'?MENU:MENU.filter(i=>i.cat===activeCat);
+  if(searchQ) items=items.filter(i=>i.name.toLowerCase().includes(searchQ));
+  if(!items.length){
+    const d=document.createElement('div');d.className='no-results';d.textContent='Keine Artikel gefunden.';grid.appendChild(d);return;
+  }
+  items.forEach(item=>{
+    const c=document.createElement('div');c.className='item-card';
+    c.innerHTML=`<div class="item-emoji">${item.emoji}</div><div class="item-name">${item.name}</div><div class="item-price">$${item.price.toFixed(2)}</div>`;
+    c.onclick=()=>{addItem(item.id);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');};
+    grid.appendChild(c);
+  });
+}
+
+
+
+
+function closeOrder(){
+  document.getElementById('posRight').classList.remove('open');
+}
+
+function addItem(id){
+  order[id]=(order[id]||0)+1;
+  document.getElementById('posRight').classList.add('open');
+  renderOrder();
+}
+function changeQty(id,d){
+  order[id]=(order[id]||0)+d;
+  if(order[id]<=0) delete order[id];
+  if(!Object.keys(order).length){
+    document.getElementById('posRight').classList.remove('open');
+    document.getElementById('cashInput').value='';
+    document.getElementById('changeAmount').textContent='—';
+    document.getElementById('changeAmount').className='change-amount';
+  }
+  renderOrder();
+}
+function getSub(){ return Object.keys(order).map(Number).reduce((s,id)=>s+(MENU.find(m=>m.id===id).price*order[id]),0); }
+
+function calcChange(){
+  const cash=parseFloat(document.getElementById('cashInput').value);
+  const tot=getSub()*1.08;
+  const el=document.getElementById('changeAmount');
+  if(isNaN(cash)||cash===0){el.textContent='—';el.className='change-amount';return;}
+  const ch=cash-tot;
+  el.textContent=ch<0?`-$${Math.abs(ch).toFixed(2)}`:`$${ch.toFixed(2)}`;
+  el.className='change-amount'+(ch<0?' low':'');
+}
+
+function renderOrder(){
+  const c=document.getElementById('orderItems');
+  const ids=Object.keys(order).map(Number);
+  const badge=document.getElementById('orderBadge');
+  const cnt=ids.reduce((s,id)=>s+order[id],0);
+  badge.textContent=cnt; badge.classList.toggle('show',cnt>0);
+  if(!ids.length){
+    c.innerHTML=`<div class="order-empty"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg><p>Noch keine Artikel</p></div>`;
+  } else {
+    c.innerHTML='';
+    ids.forEach(id=>{
+      const item=MENU.find(m=>m.id===id);
+      const ln=document.createElement('div');ln.className='order-line';
+      ln.innerHTML=`<div class="order-line-name">${item.name}</div><div class="qty-controls"><button class="qty-btn" onclick="changeQty(${id},-1)">−</button><span class="qty-num">${order[id]}</span><button class="qty-btn" onclick="changeQty(${id},1)">+</button></div><div class="order-line-price">$${(item.price*order[id]).toFixed(2)}</div>`;
+      c.appendChild(ln);
+    });
+  }
+  const sub=getSub(),tax=sub*0.08,tot=sub+tax;
+  document.getElementById('subtotal').textContent=`$${sub.toFixed(2)}`;
+  document.getElementById('tax').textContent=`$${tax.toFixed(2)}`;
+  document.getElementById('total').textContent=`$${tot.toFixed(2)}`;
+  const btn=document.getElementById('checkoutBtn');
+  btn.disabled=!ids.length;
+  btn.textContent=ids.length?`Charge $${tot.toFixed(2)}`:'Charge $0.00';
+  calcChange();
+}
+
+document.getElementById('clearBtn').onclick=()=>{
+  order={};
+  document.getElementById('posRight').classList.remove('open');
+  document.getElementById('cashInput').value='';
+  document.getElementById('changeAmount').textContent='—';
+  document.getElementById('changeAmount').className='change-amount';
+  renderOrder();
+};
+document.getElementById('checkoutBtn').onclick=()=>{
+  const tot=document.getElementById('total').textContent;
+  const cash=parseFloat(document.getElementById('cashInput').value);
+  const totalN=getSub()*1.08;
+  const chg=!isNaN(cash)&&cash>0?`\nChange: $${Math.max(0,cash-totalN).toFixed(2)}`:'';
+  alert(`Bestellung abgeschlossen!\n\nGesamt: ${tot}${chg}\n\nDanke schön!`);
+  order={};
+  document.getElementById('posRight').classList.remove('open');
+  document.getElementById('cashInput').value='';
+  document.getElementById('changeAmount').textContent='—';
+  document.getElementById('changeAmount').className='change-amount';
+  renderOrder();
+};
+
+/* ══════════════════════
+   TASKS LOGIC
+══════════════════════ */
+let tasks=[], taskFormOpen=false;
+
+function toggleTaskForm(){
+  taskFormOpen=!taskFormOpen;
+  document.getElementById('taskForm').classList.toggle('open',taskFormOpen);
+  document.getElementById('btnNewTask').innerHTML = taskFormOpen
+    ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Close`
+    : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Task`;
+  if(taskFormOpen) setTimeout(()=>document.getElementById('taskInput').focus(),320);
+}
+
+document.getElementById('taskInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+function addTask(){
+  const val=document.getElementById('taskInput').value.trim();
+  if(!val) return;
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  tasks.push({id:Date.now(),text:val,done:false,time:timeStr});
+  document.getElementById('taskInput').value='';
+  renderTasks();
+  toggleTaskForm();
+}
+
+function toggleDone(id){
+  const t=tasks.find(t=>t.id===id);
+  if(t) t.done=!t.done;
+  renderTasks();
+}
+
+function deleteTask(id){
+  const el=document.getElementById('task-'+id);
+  if(el){
+    el.classList.add('removing');
+    setTimeout(()=>{tasks=tasks.filter(t=>t.id!==id);renderTasks();},220);
+  }
+}
+
+function renderTasks(){
+  const list=document.getElementById('taskList');
+  const empty=document.getElementById('tasksEmpty');
+  const todo=tasks.filter(t=>!t.done).length;
+  const done=tasks.filter(t=>t.done).length;
+  document.getElementById('statTodo').textContent=todo;
+  document.getElementById('statDone').textContent=done;
+  empty.style.display=tasks.length?'none':'flex';
+  list.innerHTML='';
+  // Show todo first, then done
+  [...tasks.filter(t=>!t.done),...tasks.filter(t=>t.done)].forEach(task=>{
+    const el=document.createElement('div');
+    el.className='task-item'+(task.done?' done-state':'');
+    el.id='task-'+task.id;
+    el.innerHTML=`
+      <button class="task-check ${task.done?'checked':''}" onclick="toggleDone(${task.id})">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <div class="task-text-wrap">
+        <div class="task-text">${escHtml(task.text)}</div>
+        <div class="task-meta">Added at ${task.time}</div>
+      </div>
+      <div class="task-actions">
+        <button class="task-action-btn del" title="Delete" onclick="deleteTask(${task.id})">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+renderItems();
+renderTasks();
+</script>
+</body>
+</html>
